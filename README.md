@@ -11,3 +11,5 @@
 2. Click This Firefox and then Load Temporary Add-on. <br>
 3. Select the manifest.json file from the folder where you saved the extension. <br>
 4. The extension will be installed and active. <br>
+
+## Unzip icon folder in the same directory.
