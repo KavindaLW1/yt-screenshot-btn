@@ -4,7 +4,7 @@
     if (document.querySelector('#screenshot-btn')) return;
 
     // Find the container with the Like/Share buttons
-    const container = document.querySelector('#top-level-buttons-computed');
+    const container = document.querySelector('#owner');
     if (!container) return;
 
     // Create the screenshot button
@@ -13,13 +13,25 @@
     button.title = 'Take Screenshot';
     button.id = 'screenshot-btn';
     button.style.fontSize = '14px';
+    button.style.fontFamily = 'Roboto, Arial, sans-serif';
+    button.style.fontWeight = 500;
     button.style.padding = '8px 12px';
-    button.style.backgroundColor = '#f1f1f1';
-    button.style.border = '1px solid #ccc';
+    button.style.backgroundColor = '#ffffff';
     button.style.borderRadius = '18px';
     button.style.color = '#333';
     button.style.cursor = 'pointer';
     button.style.marginLeft = '10px'; // Add space from other buttons
+    button.style.transition = 'background-color 0.3s, color 0.3s'; // add transition to the button
+
+    button.addEventListener('mouseover', () => {
+      button.style.backgroundColor = '#ddd'; // Light gray on hover
+      button.style.color = '#000'; // Darker text on hover
+    });
+    
+    button.addEventListener('mouseout', () => {
+      button.style.backgroundColor = '#f1f1f1'; // Revert to original
+      button.style.color = '#333';
+    });
 
     button.addEventListener('click', takeScreenshot);
 
@@ -29,7 +41,6 @@
 
   async function takeScreenshot() {
     const video = document.querySelector('video');
-    const videoTitle = document.querySelector('#below #title h1').innerText || 'untitled-video';
     if (!video) return;
 
     // Create a canvas to draw the current video frame
@@ -42,7 +53,7 @@
     // Convert the canvas to a blob
     canvas.toBlob(async (blob) => {
       if (!blob) return;
-
+    
       // Copy to clipboard
       try {
         const item = new ClipboardItem({ 'image/png': blob });
@@ -51,16 +62,23 @@
       } catch (clipboardErr) {
         console.error('Clipboard write failed:', clipboardErr);
       }
-
-      // Create a link to download the screenshot
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      // Include video title in the filename (sanitize the title to remove invalid characters)
-      const sanitizedTitle = videoTitle.replace(/[\/\\?%*:|"<>]/g, '-');
-      link.download = `${sanitizedTitle}-screenshot-${Date.now()}.png`; // Set file name with video title and timestamp
-
-      // Trigger download automatically (no alert)
-      link.click();
+    
+      // Ask for user confirmation before saving
+      const saveConfirmation = confirm('Do you want to save the screenshot?');
+      if (saveConfirmation) {
+        // Create a link to download the screenshot
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        
+        // Get the video title and sanitize it
+        const videoTitle = document.querySelector('#below #title h1')?.innerText || 'untitled-video';
+        const sanitizedTitle = videoTitle.replace(/[\/\\?%*:|"<>]/g, '-');
+        
+        link.download = `${sanitizedTitle}-screenshot-${Date.now()}.png`;
+        
+        // Trigger download
+        link.click();
+      }
     });
   }
 
